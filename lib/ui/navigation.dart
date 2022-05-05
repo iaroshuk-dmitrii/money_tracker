@@ -12,7 +12,7 @@ abstract class Screens {
 }
 
 class MainNavigation {
-  final initialRoute = Screens.test;
+  final initialRoute = Screens.login;
 
   final routes = <String, Widget Function(BuildContext)>{
     Screens.login: (context) => const LoginScreen(),

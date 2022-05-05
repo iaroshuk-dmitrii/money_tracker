@@ -33,3 +33,9 @@ flutter:
 
   assets:
     - assets/images/
+  fonts:
+    - family: SanFrancisco
+      fonts:
+        - asset: assets/fonts/sf_ui_display/regular.ttf
+        - asset: assets/fonts/sf_ui_display/bold.ttf
+          weight: 700
