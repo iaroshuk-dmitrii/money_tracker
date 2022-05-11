@@ -6,7 +6,7 @@ class PurpleTextButton extends StatelessWidget {
   final void Function()? onPressed;
   final bool loading;
 
-  PurpleTextButton({Key? key, required this.buttonTitle, this.onPressed, this.loading = false}) : super(key: key);
+  const PurpleTextButton({Key? key, required this.buttonTitle, this.onPressed, this.loading = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class PurpleTextButton extends StatelessWidget {
         child: loading ? const CircularProgressIndicator(color: Colors.white) : Text(buttonTitle),
       ),
       style: ButtonStyle(
-        fixedSize: MaterialStateProperty.all<Size>(Size(double.infinity, 50.0)),
+        fixedSize: MaterialStateProperty.all<Size>(const Size(double.infinity, 50.0)),
         backgroundColor:
             loading ? MaterialStateProperty.all<Color>(kLightGray) : MaterialStateProperty.all<Color>(kPurpleColor),
         foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
