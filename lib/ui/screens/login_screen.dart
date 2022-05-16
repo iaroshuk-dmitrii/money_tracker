@@ -42,18 +42,17 @@ class LoginScreen extends StatelessWidget {
                       'Учёт расходов',
                       style: TextStyle(
                         fontSize: 24,
-                        fontFamily: 'SanFrancisco',
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 12),
                     const Text(
                       'Ваша история расходов',
-                      style: TextStyle(fontSize: 15, fontFamily: 'SanFrancisco'),
+                      style: TextStyle(fontSize: 15),
                     ),
                     const Text(
                       'всегда под рукой',
-                      style: TextStyle(fontSize: 15, fontFamily: 'SanFrancisco'),
+                      style: TextStyle(fontSize: 15),
                     ),
                     const SizedBox(height: 40),
                     const _EmailInput(),
@@ -84,9 +83,9 @@ class _EmailInput extends StatelessWidget {
       textAlign: TextAlign.left,
       decoration: const InputDecoration(
         labelText: 'E-mail',
-        labelStyle: TextStyle(fontSize: 17, fontFamily: 'SanFrancisco'),
+        labelStyle: TextStyle(fontSize: 17),
       ),
-      style: const TextStyle(fontSize: 17, fontFamily: 'SanFrancisco'),
+      style: const TextStyle(fontSize: 17),
     );
   }
 }
@@ -103,9 +102,9 @@ class _PasswordInput extends StatelessWidget {
       textAlign: TextAlign.left,
       decoration: const InputDecoration(
         labelText: 'Пароль',
-        labelStyle: TextStyle(fontSize: 17, fontFamily: 'SanFrancisco'),
+        labelStyle: TextStyle(fontSize: 17),
       ),
-      style: const TextStyle(fontSize: 17, fontFamily: 'SanFrancisco'),
+      style: const TextStyle(fontSize: 17),
     );
   }
 }

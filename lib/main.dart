@@ -4,7 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:money_tracker/business_logic/auth_bloc.dart';
 import 'package:money_tracker/business_logic/image_picker_bloc.dart';
 import 'package:money_tracker/business_logic/login_cubit.dart';
+import 'package:money_tracker/business_logic/profile_bloc.dart';
 import 'package:money_tracker/repositories/auth_repository.dart';
+import 'package:money_tracker/repositories/storage_repository.dart';
 import 'package:money_tracker/ui/navigation.dart';
 import 'package:money_tracker/ui/theme.dart';
 
@@ -20,13 +22,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (BuildContext context) => AuthRepository(),
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider(create: (BuildContext context) => AuthRepository()),
+        RepositoryProvider(create: (BuildContext context) => StorageRepository()),
+      ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider<AuthBloc>(create: (context) => AuthBloc(authRepository: context.read<AuthRepository>())),
           BlocProvider<LoginCubit>(create: (context) => LoginCubit(authRepository: context.read<AuthRepository>())),
           BlocProvider<ImagePickerBloc>(create: (context) => ImagePickerBloc()),
+          BlocProvider<ProfileBloc>(
+            create: (context) => ProfileBloc(
+                authRepository: context.read<AuthRepository>(), storageRepository: context.read<StorageRepository>()),
+            lazy: false,
+          ),
         ],
         child: MaterialApp(
           theme: AppTheme.light,

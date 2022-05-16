@@ -56,6 +56,12 @@ class LoginCubit extends Cubit<LoginState> {
     }
   }
 
+  Future<void> signOut() async {
+    print('SignOut');
+    await _authRepository.signOut();
+    emit(state.copyWith(email: '', password: '', status: LoginStatus.initial));
+  }
+
   void switchToSignUp() {
     print('switchToSignUp');
     if (state.loginType == LoginType.signUp) return;
@@ -71,6 +77,7 @@ class LoginCubit extends Cubit<LoginState> {
 
 //------------------------------
 enum LoginStatus { initial, inProgress, success, error }
+
 enum LoginType { login, signUp }
 
 //------------------------------

@@ -26,11 +26,11 @@ class MainNavigation {
     },
     Screens.profile: (context) {
       print('Create ProfileScreen');
-      return const TestScreen();
+      return const ProfileScreen();
     },
     Screens.costAccounting: (context) {
       print('Create CostAccountingScreen');
-      return const TestScreen();
+      return const ProfileScreen();
     },
     Screens.test: (context) {
       print('Create TestScreen');
