@@ -11,7 +11,7 @@ class LoaderScreen extends StatelessWidget {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticatedState) {
-          Navigator.of(context).pushNamedAndRemoveUntil(Screens.costAccounting, (Route<dynamic> route) => false);
+          Navigator.of(context).pushNamedAndRemoveUntil(Screens.mainTabs, (Route<dynamic> route) => false);
         }
         if (state is AuthUnauthenticatedState) {
           Navigator.of(context).pushNamedAndRemoveUntil(Screens.login, (Route<dynamic> route) => false);

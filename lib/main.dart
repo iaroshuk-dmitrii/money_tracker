@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:money_tracker/business_logic/auth_bloc.dart';
 import 'package:money_tracker/business_logic/image_picker_bloc.dart';
 import 'package:money_tracker/business_logic/login_cubit.dart';
+import 'package:money_tracker/business_logic/main_tabs_bloc.dart';
 import 'package:money_tracker/business_logic/profile_bloc.dart';
 import 'package:money_tracker/repositories/auth_repository.dart';
 import 'package:money_tracker/repositories/storage_repository.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider<AuthBloc>(create: (context) => AuthBloc(authRepository: context.read<AuthRepository>())),
           BlocProvider<LoginCubit>(create: (context) => LoginCubit(authRepository: context.read<AuthRepository>())),
+          BlocProvider<MainTabsBloc>(create: (context) => MainTabsBloc()),
           BlocProvider<ImagePickerBloc>(create: (context) => ImagePickerBloc()),
           BlocProvider<ProfileBloc>(
             create: (context) => ProfileBloc(

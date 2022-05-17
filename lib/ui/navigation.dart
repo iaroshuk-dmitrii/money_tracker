@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:money_tracker/ui/screens/cost_accounting_screen.dart';
 import 'package:money_tracker/ui/screens/loader_screen.dart';
 import 'package:money_tracker/ui/screens/login_screen.dart';
+import 'package:money_tracker/ui/screens/main_tabs_screen.dart';
 import 'package:money_tracker/ui/screens/profile_screen.dart';
 import 'package:money_tracker/ui/screens/test_screen.dart';
 
 abstract class Screens {
   static const loader = '/LoaderScreen';
   static const login = '/LoginScreen';
-  static const profile = '/ProfileScreen';
-  static const costAccounting = '/CostAccountingScreen';
+  static const mainTabs = '/MainTabsScreen';
   static const test = '/TestScreen';
 }
 
@@ -24,13 +25,9 @@ class MainNavigation {
       print('Create LoginScreen');
       return const LoginScreen();
     },
-    Screens.profile: (context) {
-      print('Create ProfileScreen');
-      return const ProfileScreen();
-    },
-    Screens.costAccounting: (context) {
-      print('Create CostAccountingScreen');
-      return const ProfileScreen();
+    Screens.mainTabs: (context) {
+      print('Create MainTabsScreen');
+      return const MainTabsScreen();
     },
     Screens.test: (context) {
       print('Create TestScreen');

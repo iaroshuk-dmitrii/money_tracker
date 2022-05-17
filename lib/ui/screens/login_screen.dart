@@ -13,7 +13,7 @@ class LoginScreen extends StatelessWidget {
     return BlocListener<LoginCubit, LoginState>(
       listener: (context, state) {
         if (state.status == LoginStatus.success) {
-          Navigator.of(context).pushNamedAndRemoveUntil(Screens.costAccounting, (Route<dynamic> route) => false);
+          Navigator.of(context).pushNamedAndRemoveUntil(Screens.mainTabs, (Route<dynamic> route) => false);
         }
         if (state.status == LoginStatus.error) {
           final String errorMessage = state.error;
