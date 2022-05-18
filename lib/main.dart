@@ -1,7 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:money_tracker/business_logic/auth_bloc.dart';
+import 'package:money_tracker/business_logic/cost_cubit.dart';
+import 'package:money_tracker/business_logic/group_cubit.dart';
 import 'package:money_tracker/business_logic/image_picker_bloc.dart';
 import 'package:money_tracker/business_logic/login_cubit.dart';
 import 'package:money_tracker/business_logic/main_tabs_bloc.dart';
@@ -10,6 +13,7 @@ import 'package:money_tracker/repositories/auth_repository.dart';
 import 'package:money_tracker/repositories/storage_repository.dart';
 import 'package:money_tracker/ui/navigation.dart';
 import 'package:money_tracker/ui/theme.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +27,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Intl.defaultLocale = 'ru';
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(create: (BuildContext context) => AuthRepository()),
@@ -39,12 +44,19 @@ class MyApp extends StatelessWidget {
                 authRepository: context.read<AuthRepository>(), storageRepository: context.read<StorageRepository>()),
             lazy: false,
           ),
+          BlocProvider<GroupCubit>(create: (context) => GroupCubit()),
+          BlocProvider<CostCubit>(create: (context) => CostCubit()),
         ],
         child: MaterialApp(
           theme: AppTheme.light,
           initialRoute: mainNavigation.initialRoute,
           routes: mainNavigation.routes,
           onGenerateRoute: mainNavigation.onGenerateRoute,
+          localizationsDelegates: const [
+            GlobalWidgetsLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
         ),
       ),
     );
