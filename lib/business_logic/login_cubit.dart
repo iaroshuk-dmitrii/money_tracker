@@ -17,17 +17,14 @@ class LoginCubit extends Cubit<LoginState> {
         ));
 
   void emailChanged(String value) {
-    print('emailChanged $value');
     emit(state.copyWith(email: value, status: LoginStatus.initial));
   }
 
   void passwordChanged(String value) {
-    print('passwordChanged $value');
     emit(state.copyWith(password: value, status: LoginStatus.initial));
   }
 
   Future<void> signUp() async {
-    print('signUp');
     if (state.status == LoginStatus.inProgress) return;
     emit(state.copyWith(status: LoginStatus.inProgress));
     try {
@@ -42,7 +39,6 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> login() async {
-    print('login');
     if (state.status == LoginStatus.inProgress) return;
     emit(state.copyWith(status: LoginStatus.inProgress));
     try {
@@ -57,19 +53,16 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> signOut() async {
-    print('SignOut');
     await _authRepository.signOut();
     emit(state.copyWith(email: '', password: '', status: LoginStatus.initial));
   }
 
   void switchToSignUp() {
-    print('switchToSignUp');
     if (state.loginType == LoginType.signUp) return;
     emit(state.copyWith(loginType: LoginType.signUp, status: LoginStatus.initial));
   }
 
   void switchToLogin() {
-    print('switchToLogin');
     if (state.loginType == LoginType.login) return;
     emit(state.copyWith(loginType: LoginType.login, status: LoginStatus.initial));
   }

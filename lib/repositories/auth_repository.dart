@@ -10,16 +10,20 @@ class AuthRepository {
       final user = result.user;
       return user;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        throw AuthException('Пароль не надежный.');
-      } else if (e.code == 'email-already-in-use') {
-        throw AuthException('Email уже используется.');
+      switch (e.code) {
+        case 'weak-password':
+          throw AuthException('Пароль не надежный.');
+        case 'email-already-in-use':
+          throw AuthException('Email уже используется.');
+        case 'invalid-email':
+          throw AuthException('Неверный Email');
+        default:
+          throw AuthException('Что-то пошло не так, повторите позже.');
       }
     } catch (e) {
       throw AuthException('Ошибка, повторите позже.');
       // throw Exception(e.toString());
     }
-    return null;
   }
 
   Future<User?> signIn({required String email, required String password}) async {
@@ -28,10 +32,15 @@ class AuthRepository {
       final user = result.user;
       return user;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        throw AuthException('Пользователь не найден');
-      } else if (e.code == 'wrong-password') {
-        throw AuthException('Неверный пароль.');
+      switch (e.code) {
+        case 'user-not-found':
+          throw AuthException('Пользователь не найден');
+        case 'wrong-password':
+          throw AuthException('Неверный пароль.');
+        case 'invalid-email':
+          throw AuthException('Неверный Email');
+        default:
+          throw AuthException('Что-то пошло не так, повторите позже.');
       }
     } catch (e) {
       throw AuthException('Ошибка, повторите позже.');
