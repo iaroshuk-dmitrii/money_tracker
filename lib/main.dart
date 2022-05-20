@@ -53,7 +53,10 @@ class MyApp extends StatelessWidget {
               create: (context) => GroupCubit(
                   authRepository: context.read<AuthRepository>(),
                   firestoreRepository: context.read<FirestoreRepository>())),
-          BlocProvider<CostCubit>(create: (context) => CostCubit()),
+          BlocProvider<CostCubit>(
+              create: (context) => CostCubit(
+                  authRepository: context.read<AuthRepository>(),
+                  firestoreRepository: context.read<FirestoreRepository>())),
           BlocProvider<FirestoreBloc>(
             create: (context) => FirestoreBloc(
                 authRepository: context.read<AuthRepository>(),

@@ -62,7 +62,6 @@ class GroupCubit extends Cubit<GroupState> {
       User? user = await _authRepository.getCurrentUser();
       if (user != null) {
         await _firestoreRepository.deleteGroup(userId: user.uid, group: group);
-        //TODO удалить документы пользователей
         emit(state.copyWith(status: GroupStatus.success));
       }
     } catch (e) {

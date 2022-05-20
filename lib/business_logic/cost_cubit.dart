@@ -1,9 +1,19 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:money_tracker/models/costs_data.dart';
+import 'package:money_tracker/repositories/auth_repository.dart';
+import 'package:money_tracker/repositories/firestore_repository.dart';
 
 class CostCubit extends Cubit<CostState> {
-  CostCubit()
-      : super(CostState(
+  final FirestoreRepository _firestoreRepository;
+  final AuthRepository _authRepository;
+
+  CostCubit({
+    required FirestoreRepository firestoreRepository,
+    required AuthRepository authRepository,
+  })  : _firestoreRepository = firestoreRepository,
+        _authRepository = authRepository,
+        super(CostState(
           id: '',
           cost: 0.0,
           dateTime: DateTime.now(),
@@ -32,14 +42,16 @@ class CostCubit extends Cubit<CostState> {
     ));
   }
 
-  Future<void> createCost() async {
+  Future<void> createCost({required String groupId}) async {
     print('createCost');
     emit(state.copyWith(status: CostStatus.inProgress));
     try {
-      //TODO
-      CostData costData = CostData(id: state.id, cost: state.cost, dateTime: state.dateTime);
-      print(costData.toString());
-      emit(state.copyWith(status: CostStatus.success, costData: costData));
+      User? user = await _authRepository.getCurrentUser();
+      if (user != null) {
+        CostData costData = CostData(id: state.id, cost: state.cost, dateTime: state.dateTime, groupId: groupId);
+        await _firestoreRepository.addCost(userId: user.uid, costData: costData);
+        emit(state.copyWith(status: CostStatus.success, costData: costData));
+      }
     } catch (e) {
       print(e.toString());
       emit(state.copyWith(status: CostStatus.error, error: e.toString()));
@@ -50,8 +62,11 @@ class CostCubit extends Cubit<CostState> {
     print('deleteCost');
     emit(state.copyWith(status: CostStatus.inProgress));
     try {
-      //TODO
-      emit(state.copyWith(status: CostStatus.success));
+      User? user = await _authRepository.getCurrentUser();
+      if (user != null) {
+        await _firestoreRepository.deleteCost(userId: user.uid, costData: costData);
+        emit(state.copyWith(status: CostStatus.success));
+      }
     } catch (e) {
       print(e.toString());
       emit(state.copyWith(status: CostStatus.error, error: e.toString()));

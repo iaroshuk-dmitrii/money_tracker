@@ -9,6 +9,8 @@ import 'package:money_tracker/repositories/firestore_repository.dart';
 class FirestoreBloc extends Bloc<FirestoreDataEvent, FirestoreState> {
   final FirestoreRepository _firestoreRepository;
   final AuthRepository _authRepository;
+  DateTime month = DateTime.now();
+  List<CostsGroup> costsGroups = [];
   StreamSubscription<User?>? _userSubscription;
   StreamSubscription<QuerySnapshot?>? _costGroupSubscription;
 
@@ -17,9 +19,10 @@ class FirestoreBloc extends Bloc<FirestoreDataEvent, FirestoreState> {
     required AuthRepository authRepository,
   })  : _firestoreRepository = firestoreRepository,
         _authRepository = authRepository,
-        super(FirestoreState([])) {
+        super(FirestoreState(costsGroups: [], month: DateTime.now())) {
     on<UserChangedEvent>((event, emit) async {
       print('FirestoreBloc: DataChangedEvent');
+      month = DateTime.now();
       _costGroupSubscription?.cancel();
       final user = event.user;
       if (user != null) {
@@ -30,20 +33,22 @@ class FirestoreBloc extends Bloc<FirestoreDataEvent, FirestoreState> {
     });
     on<CostGroupChangedEvent>((event, emit) async {
       print('FirestoreBloc: CostGroupChangedEvent');
-      List<CostsGroup> costsGroups = [];
+      costsGroups.clear();
       List<QueryDocumentSnapshot<Object?>> snapshots = event.snapshot?.docs ?? [];
       for (QueryDocumentSnapshot<Object?> snapshot in snapshots) {
         CostsGroup group = CostsGroup.fromQueryDocumentSnapshot(snapshot);
         costsGroups.add(group);
         print('costsGroup = ${group.toString()}');
       }
-      emit(FirestoreState(costsGroups));
+      emit(FirestoreState(costsGroups: costsGroups, month: month));
     });
     on<CostDataChangedEvent>((event, emit) async {
       print('FirestoreBloc: CostGroupChangedEvent');
     });
-    on<MonthDataChangedEvent>((event, emit) async {
+    on<MonthChangedEvent>((event, emit) async {
       print('FirestoreBloc: CostGroupChangedEvent');
+      month = event.dateTime;
+      emit(FirestoreState(costsGroups: costsGroups, month: month)); //TODO
     });
 
     _userSubscription = _authRepository.user.listen((user) {
@@ -77,13 +82,14 @@ class CostDataChangedEvent extends FirestoreDataEvent {
   CostDataChangedEvent(this.snapshot);
 }
 
-class MonthDataChangedEvent extends FirestoreDataEvent {
+class MonthChangedEvent extends FirestoreDataEvent {
   DateTime dateTime;
-  MonthDataChangedEvent(this.dateTime);
+  MonthChangedEvent(this.dateTime);
 }
 
 //------------------------------
 class FirestoreState {
+  DateTime month;
   List<CostsGroup> costsGroups;
-  FirestoreState(this.costsGroups);
+  FirestoreState({required this.costsGroups, required this.month});
 }

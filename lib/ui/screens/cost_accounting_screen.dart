@@ -19,17 +19,16 @@ class CostAccountingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DateTime month = DateTime.now(); //TODO
     return Scaffold(
       appBar: _monthPickerAppBar(context),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+        children: const [
           Expanded(
             flex: 2,
-            child: _PieChartDiagram(month: month),
+            child: _PieChartDiagram(),
           ),
-          const Expanded(
+          Expanded(
             flex: 3,
             child: _CostsGroupsList(),
           ),
@@ -40,19 +39,20 @@ class CostAccountingScreen extends StatelessWidget {
 }
 
 PreferredSizeWidget _monthPickerAppBar(BuildContext context) {
-  DateTime month = DateTime.now(); //TODO
   return AppBar(
       title: TextButton(
         child: Center(
-          child: Text(
-            '${StringUtils.capitalize(DateFormat('MMMM').format(month))} ${DateFormat('yyyy').format(month)}',
-            style: const TextStyle(color: Colors.white, fontSize: 24),
-          ),
+          child: BlocBuilder<FirestoreBloc, FirestoreState>(builder: (context, state) {
+            return Text(
+              '${StringUtils.capitalize(DateFormat('MMMM').format(state.month))} ${DateFormat('yyyy').format(state.month)}',
+              style: const TextStyle(color: Colors.white, fontSize: 24),
+            );
+          }),
         ),
         onPressed: () async {
           DateTime? pickedMonth = await _selectMonth(context);
           if (pickedMonth != null) {
-            //TODO
+            BlocProvider.of<FirestoreBloc>(context).add(MonthChangedEvent(pickedMonth));
           }
         },
       ),
@@ -78,12 +78,7 @@ Future<DateTime?> _selectMonth(BuildContext context) async {
 }
 
 class _PieChartDiagram extends StatelessWidget {
-  const _PieChartDiagram({
-    Key? key,
-    required this.month,
-  }) : super(key: key);
-
-  final DateTime month;
+  const _PieChartDiagram({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +104,7 @@ class _PieChartDiagram extends StatelessWidget {
                         dataLabelSettings: const DataLabelSettings(isVisible: true))
                   ],
                 )
-              : Text('За ${DateFormat('MMMM').format(month)} нет расходов'),
+              : Text('За ${DateFormat('MMMM').format(state.month)} нет расходов'),
         ),
       );
     });
@@ -137,6 +132,7 @@ Future<dynamic> _createCostsGroupDialog(BuildContext context) async {
               TextField(
                 keyboardType: TextInputType.text,
                 textAlign: TextAlign.left,
+                autofocus: true,
                 decoration: const InputDecoration(labelText: 'Название'),
                 onChanged: (value) => context.read<GroupCubit>().nameChanged(value),
               ),
@@ -272,6 +268,7 @@ Future<dynamic> _createCostsDialog({required BuildContext context, required Cost
                 child: TextField(
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.left,
+                  autofocus: true,
                   decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
                     isDense: true,
@@ -296,7 +293,7 @@ Future<dynamic> _createCostsDialog({required BuildContext context, required Cost
               ),
             ],
           ),
-          onConfirm: () => context.read<CostCubit>().createCost(),
+          onConfirm: () => context.read<CostCubit>().createCost(groupId: costsGroup.id!),
         ),
       );
     },
