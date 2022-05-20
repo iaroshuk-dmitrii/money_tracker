@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:money_tracker/business_logic/cost_cubit.dart';
+import 'package:money_tracker/business_logic/firestore_bloc.dart';
 import 'package:money_tracker/business_logic/group_cubit.dart';
 import 'package:money_tracker/models/costs_group.dart';
 import 'package:money_tracker/ui/constants.dart';
@@ -13,34 +14,12 @@ import 'package:money_tracker/ui/widgets/custom_alert_dialog.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../../models/costs_data.dart';
-
 class CostAccountingScreen extends StatelessWidget {
   const CostAccountingScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     DateTime month = DateTime.now(); //TODO
-    List<CostsGroup> costsGroups = [
-      CostsGroup(
-          color: 15885638,
-          costs: [
-            CostData(cost: 380.0, id: '23', dateTime: DateTime.now()),
-          ],
-          name: 'Dog'),
-      CostsGroup(
-          color: 4633842,
-          costs: [
-            CostData(cost: 200, id: '23', dateTime: DateTime.now()),
-          ],
-          name: 'Car'),
-      CostsGroup(
-          color: 15906886,
-          costs: [
-            CostData(cost: 100, id: '23', dateTime: DateTime.now()),
-          ],
-          name: 'Home'),
-    ]; //TODO
     return Scaffold(
       appBar: _monthPickerAppBar(context),
       body: Column(
@@ -48,11 +27,11 @@ class CostAccountingScreen extends StatelessWidget {
         children: [
           Expanded(
             flex: 2,
-            child: _PieChartDiagram(costsGroups: costsGroups, month: month),
+            child: _PieChartDiagram(month: month),
           ),
-          Expanded(
+          const Expanded(
             flex: 3,
-            child: _CostsGroupsList(costsGroups: costsGroups),
+            child: _CostsGroupsList(),
           ),
         ],
       ),
@@ -101,39 +80,39 @@ Future<DateTime?> _selectMonth(BuildContext context) async {
 class _PieChartDiagram extends StatelessWidget {
   const _PieChartDiagram({
     Key? key,
-    required this.costsGroups,
     required this.month,
   }) : super(key: key);
 
-  final List<CostsGroup> costsGroups;
   final DateTime month;
 
   @override
   Widget build(BuildContext context) {
-    List<CostsGroup> notEmptyCostsGroups = [];
-    for (CostsGroup costsGroup in costsGroups) {
-      if (costsGroup.totalCosts != 0) {
-        notEmptyCostsGroups.add(costsGroup);
+    return BlocBuilder<FirestoreBloc, FirestoreState>(builder: (context, state) {
+      List<CostsGroup> notEmptyCostsGroups = [];
+      for (CostsGroup costsGroup in state.costsGroups) {
+        if (costsGroup.totalCosts != 0) {
+          notEmptyCostsGroups.add(costsGroup);
+        }
       }
-    }
-    return ColoredBox(
-      color: kLightGray,
-      child: Center(
-        child: notEmptyCostsGroups.isNotEmpty
-            ? SfCircularChart(
-                series: [
-                  DoughnutSeries<CostsGroup, String>(
-                      dataSource: notEmptyCostsGroups,
-                      xValueMapper: (CostsGroup data, _) => data.name,
-                      yValueMapper: (CostsGroup data, _) => data.totalCosts,
-                      dataLabelMapper: (CostsGroup data, _) => data.name,
-                      pointColorMapper: (CostsGroup data, _) => Color(0XFF000000 + data.color),
-                      dataLabelSettings: const DataLabelSettings(isVisible: true))
-                ],
-              )
-            : Text('За ${DateFormat('MMMM').format(month)} нет расходов'),
-      ),
-    );
+      return ColoredBox(
+        color: kLightGray,
+        child: Center(
+          child: notEmptyCostsGroups.isNotEmpty
+              ? SfCircularChart(
+                  series: [
+                    DoughnutSeries<CostsGroup, String>(
+                        dataSource: notEmptyCostsGroups,
+                        xValueMapper: (CostsGroup data, _) => data.name,
+                        yValueMapper: (CostsGroup data, _) => data.totalCosts,
+                        dataLabelMapper: (CostsGroup data, _) => data.name,
+                        pointColorMapper: (CostsGroup data, _) => Color(0XFF000000 + data.color),
+                        dataLabelSettings: const DataLabelSettings(isVisible: true))
+                  ],
+                )
+              : Text('За ${DateFormat('MMMM').format(month)} нет расходов'),
+        ),
+      );
+    });
   }
 }
 
@@ -215,36 +194,33 @@ Future<dynamic> _deleteCostGroupDialog({required BuildContext context, required 
 }
 
 class _CostsGroupsList extends StatelessWidget {
-  const _CostsGroupsList({
-    Key? key,
-    required this.costsGroups,
-  }) : super(key: key);
-
-  final List<CostsGroup> costsGroups;
+  const _CostsGroupsList({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
       color: Colors.white,
-      child: ListView.builder(
-        itemCount: costsGroups.length,
-        itemBuilder: (context, index) => CAListTitle(
-          title: costsGroups[index].name,
-          subtitle: costsGroups[index].totalCosts != 0.0
-              ? 'Всего: ' + costsGroups[index].totalCosts.toString()
-              : 'Добавить расход',
-          iconColor: Color(0xFF000000 + costsGroups[index].color),
-          onTap: () {
-            _createCostsDialog(context: context, costsGroup: costsGroups[index]);
-          },
-          onLongPress: () {
-            _deleteCostGroupDialog(context: context, costsGroup: costsGroups[index]);
-          },
-          onIconTap: () {
-            Navigator.of(context).pushNamed(Screens.costData, arguments: costsGroups[index]);
-          },
-        ),
-      ),
+      child: BlocBuilder<FirestoreBloc, FirestoreState>(builder: (context, state) {
+        return ListView.builder(
+          itemCount: state.costsGroups.length,
+          itemBuilder: (context, index) => CAListTitle(
+            title: state.costsGroups[index].name,
+            subtitle: state.costsGroups[index].totalCosts != 0.0
+                ? 'Всего: ' + state.costsGroups[index].totalCosts.toString()
+                : 'Добавить расход',
+            iconColor: Color(0xFF000000 + state.costsGroups[index].color),
+            onTap: () {
+              _createCostsDialog(context: context, costsGroup: state.costsGroups[index]);
+            },
+            onLongPress: () {
+              _deleteCostGroupDialog(context: context, costsGroup: state.costsGroups[index]);
+            },
+            onIconTap: () {
+              Navigator.of(context).pushNamed(Screens.costData, arguments: state.costsGroups[index]);
+            },
+          ),
+        );
+      }),
     );
   }
 }

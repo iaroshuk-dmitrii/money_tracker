@@ -4,12 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:money_tracker/business_logic/auth_bloc.dart';
 import 'package:money_tracker/business_logic/cost_cubit.dart';
+import 'package:money_tracker/business_logic/firestore_bloc.dart';
 import 'package:money_tracker/business_logic/group_cubit.dart';
 import 'package:money_tracker/business_logic/image_picker_bloc.dart';
 import 'package:money_tracker/business_logic/login_cubit.dart';
 import 'package:money_tracker/business_logic/main_tabs_bloc.dart';
 import 'package:money_tracker/business_logic/profile_bloc.dart';
 import 'package:money_tracker/repositories/auth_repository.dart';
+import 'package:money_tracker/repositories/firestore_repository.dart';
 import 'package:money_tracker/repositories/storage_repository.dart';
 import 'package:money_tracker/ui/navigation.dart';
 import 'package:money_tracker/ui/theme.dart';
@@ -32,6 +34,7 @@ class MyApp extends StatelessWidget {
       providers: [
         RepositoryProvider(create: (BuildContext context) => AuthRepository()),
         RepositoryProvider(create: (BuildContext context) => StorageRepository()),
+        RepositoryProvider(create: (BuildContext context) => FirestoreRepository()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -41,11 +44,22 @@ class MyApp extends StatelessWidget {
           BlocProvider<ImagePickerBloc>(create: (context) => ImagePickerBloc()),
           BlocProvider<ProfileBloc>(
             create: (context) => ProfileBloc(
-                authRepository: context.read<AuthRepository>(), storageRepository: context.read<StorageRepository>()),
+              authRepository: context.read<AuthRepository>(),
+              storageRepository: context.read<StorageRepository>(),
+            ),
             lazy: false,
           ),
-          BlocProvider<GroupCubit>(create: (context) => GroupCubit()),
+          BlocProvider<GroupCubit>(
+              create: (context) => GroupCubit(
+                  authRepository: context.read<AuthRepository>(),
+                  firestoreRepository: context.read<FirestoreRepository>())),
           BlocProvider<CostCubit>(create: (context) => CostCubit()),
+          BlocProvider<FirestoreBloc>(
+            create: (context) => FirestoreBloc(
+                authRepository: context.read<AuthRepository>(),
+                firestoreRepository: context.read<FirestoreRepository>()),
+            lazy: false,
+          ),
         ],
         child: MaterialApp(
           theme: AppTheme.light,

@@ -1,9 +1,19 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:money_tracker/models/costs_group.dart';
+import 'package:money_tracker/repositories/auth_repository.dart';
+import 'package:money_tracker/repositories/firestore_repository.dart';
 
 class GroupCubit extends Cubit<GroupState> {
-  GroupCubit()
-      : super(const GroupState(
+  final FirestoreRepository _firestoreRepository;
+  final AuthRepository _authRepository;
+
+  GroupCubit({
+    required FirestoreRepository firestoreRepository,
+    required AuthRepository authRepository,
+  })  : _firestoreRepository = firestoreRepository,
+        _authRepository = authRepository,
+        super(const GroupState(
           name: '',
           intColor: '',
           status: GroupStatus.initial,
@@ -29,26 +39,32 @@ class GroupCubit extends Cubit<GroupState> {
     print('createGroup');
     emit(state.copyWith(status: GroupStatus.inProgress));
     try {
-      //TODO
-      CostsGroup group = CostsGroup(
-        name: state.name,
-        color: int.parse("FF" + state.intColor, radix: 16),
-        costs: [],
-      );
-      print(group.toString());
-      emit(state.copyWith(status: GroupStatus.success, group: group));
+      User? user = await _authRepository.getCurrentUser();
+      if (user != null) {
+        CostsGroup group = CostsGroup(
+          name: state.name,
+          color: int.parse(state.intColor, radix: 16),
+          costs: [],
+        );
+        await _firestoreRepository.addGroup(userId: user.uid, group: group);
+        emit(state.copyWith(status: GroupStatus.success, group: group));
+      }
     } catch (e) {
       print(e.toString());
       emit(state.copyWith(status: GroupStatus.error, error: e.toString()));
     }
   }
 
-  Future<void> deleteGroup(CostsGroup costsGroup) async {
+  Future<void> deleteGroup(CostsGroup group) async {
     print('deleteGroup');
     emit(state.copyWith(status: GroupStatus.inProgress));
     try {
-      //TODO
-      emit(state.copyWith(status: GroupStatus.success));
+      User? user = await _authRepository.getCurrentUser();
+      if (user != null) {
+        await _firestoreRepository.deleteGroup(userId: user.uid, group: group);
+        //TODO удалить документы пользователей
+        emit(state.copyWith(status: GroupStatus.success));
+      }
     } catch (e) {
       print(e.toString());
       emit(state.copyWith(status: GroupStatus.error, error: e.toString()));

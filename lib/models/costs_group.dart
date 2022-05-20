@@ -1,12 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:money_tracker/models/costs_data.dart';
 
 class CostsGroup {
+  String? id;
   String name;
   late double totalCosts;
   int color;
   List<CostData> costs;
 
   CostsGroup({
+    this.id,
     required this.name,
     required this.color,
     required this.costs,
@@ -24,8 +27,17 @@ class CostsGroup {
     return {
       'name': name,
       'color': color,
-      'totalCosts': totalCosts,
     };
+  }
+
+  factory CostsGroup.fromQueryDocumentSnapshot(QueryDocumentSnapshot snapshot) {
+    final data = snapshot.data() as Map<String, dynamic>;
+    return CostsGroup(
+      id: snapshot.id,
+      name: data['name'],
+      color: data['color'],
+      costs: [],
+    );
   }
 
   @override
