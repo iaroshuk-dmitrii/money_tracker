@@ -41,8 +41,8 @@ class MainNavigation {
   Route<Object> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case Screens.costData:
-        final costsGroup = settings.arguments as CostsGroup;
-        return _customAnimateRoute(CostDataScreen(costsGroup: costsGroup), settings: settings);
+        final groupId = settings.arguments as String;
+        return _customAnimateRoute(CostDataScreen(groupId: groupId), settings: settings);
       default:
         return MaterialPageRoute(builder: (context) => const Text('Navigation Error!!'));
     }

@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
               authRepository: context.read<AuthRepository>(),
               storageRepository: context.read<StorageRepository>(),
             ),
-            lazy: false,
+            // lazy: false,
           ),
           BlocProvider<GroupCubit>(
               create: (context) => GroupCubit(

@@ -43,7 +43,7 @@ class GroupCubit extends Cubit<GroupState> {
       if (user != null) {
         CostsGroup group = CostsGroup(
           name: state.name,
-          color: int.parse(state.intColor, radix: 16),
+          color: int.tryParse(state.intColor, radix: 16) ?? 0,
           costs: [],
         );
         await _firestoreRepository.addGroup(userId: user.uid, group: group);

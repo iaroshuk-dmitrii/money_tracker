@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:money_tracker/models/costs_data.dart';
 import 'package:money_tracker/models/costs_group.dart';
 import 'package:money_tracker/repositories/auth_repository.dart';
 import 'package:money_tracker/repositories/firestore_repository.dart';
@@ -9,10 +10,13 @@ import 'package:money_tracker/repositories/firestore_repository.dart';
 class FirestoreBloc extends Bloc<FirestoreDataEvent, FirestoreState> {
   final FirestoreRepository _firestoreRepository;
   final AuthRepository _authRepository;
-  DateTime month = DateTime.now();
+  DateTime selectedMonth = DateTime(DateTime.now().year, DateTime.now().month);
   List<CostsGroup> costsGroups = [];
+  List<CostData> costsData = [];
   StreamSubscription<User?>? _userSubscription;
   StreamSubscription<QuerySnapshot?>? _costGroupSubscription;
+  StreamSubscription<QuerySnapshot?>? _costDataSubscription;
+  User? user;
 
   FirestoreBloc({
     required FirestoreRepository firestoreRepository,
@@ -22,15 +26,25 @@ class FirestoreBloc extends Bloc<FirestoreDataEvent, FirestoreState> {
         super(FirestoreState(costsGroups: [], month: DateTime.now())) {
     on<UserChangedEvent>((event, emit) async {
       print('FirestoreBloc: DataChangedEvent');
-      month = DateTime.now();
       _costGroupSubscription?.cancel();
-      final user = event.user;
-      if (user != null) {
-        _costGroupSubscription = _firestoreRepository.groupSnapshot(userId: user.uid).listen((snapshot) {
+      _costDataSubscription?.cancel();
+      user = event.user;
+      final currentUser = user;
+      if (currentUser != null) {
+        _costGroupSubscription = _firestoreRepository.groupSnapshot(userId: currentUser.uid).listen((snapshot) {
           add(CostGroupChangedEvent(snapshot));
+        });
+        _costDataSubscription = _firestoreRepository
+            .costsForPeriodSnapshot(
+                userId: currentUser.uid,
+                startDateTime: selectedMonth,
+                finalDateTime: DateTime(selectedMonth.year, selectedMonth.month + 1))
+            .listen((snapshot) {
+          add(CostDataChangedEvent(snapshot));
         });
       }
     });
+
     on<CostGroupChangedEvent>((event, emit) async {
       print('FirestoreBloc: CostGroupChangedEvent');
       costsGroups.clear();
@@ -38,17 +52,40 @@ class FirestoreBloc extends Bloc<FirestoreDataEvent, FirestoreState> {
       for (QueryDocumentSnapshot<Object?> snapshot in snapshots) {
         CostsGroup group = CostsGroup.fromQueryDocumentSnapshot(snapshot);
         costsGroups.add(group);
-        print('costsGroup = ${group.toString()}');
       }
-      emit(FirestoreState(costsGroups: costsGroups, month: month));
+      _sortDataIntoGroups();
+      emit(FirestoreState(costsGroups: costsGroups, month: selectedMonth));
     });
-    on<CostDataChangedEvent>((event, emit) async {
-      print('FirestoreBloc: CostGroupChangedEvent');
-    });
+
     on<MonthChangedEvent>((event, emit) async {
-      print('FirestoreBloc: CostGroupChangedEvent');
-      month = event.dateTime;
-      emit(FirestoreState(costsGroups: costsGroups, month: month)); //TODO
+      print('FirestoreBloc: MonthChangedEvent');
+      selectedMonth = event.dateTime;
+      print(selectedMonth.toString());
+      _costDataSubscription?.cancel();
+      final currentUser = user;
+      if (currentUser != null) {
+        _costDataSubscription = _firestoreRepository
+            .costsForPeriodSnapshot(
+                userId: currentUser.uid,
+                startDateTime: selectedMonth,
+                finalDateTime: DateTime(selectedMonth.year, selectedMonth.month + 1))
+            .listen((snapshot) {
+          add(CostDataChangedEvent(snapshot));
+        });
+      }
+    });
+
+    on<CostDataChangedEvent>((event, emit) async {
+      print('FirestoreBloc: CostDataChangedEvent, ${event.snapshot?.docs ?? []} ');
+      costsData.clear();
+      List<QueryDocumentSnapshot<Object?>> snapshots = event.snapshot?.docs ?? [];
+      for (QueryDocumentSnapshot<Object?> snapshot in snapshots) {
+        CostData data = CostData.fromQueryDocumentSnapshot(snapshot);
+        costsData.add(data);
+      }
+      print('${costsData.length}');
+      _sortDataIntoGroups();
+      emit(FirestoreState(costsGroups: costsGroups, month: selectedMonth));
     });
 
     _userSubscription = _authRepository.user.listen((user) {
@@ -56,9 +93,22 @@ class FirestoreBloc extends Bloc<FirestoreDataEvent, FirestoreState> {
     });
   }
 
+  void _sortDataIntoGroups() {
+    for (CostsGroup group in costsGroups) {
+      group.costs.clear();
+      for (CostData data in costsData) {
+        if (group.id == data.groupId) {
+          group.costs.add(data);
+        }
+      }
+      group.totalCosts = CostsGroup.getTotalCosts(group.costs);
+    }
+  }
+
   @override
   Future<void> close() {
     _costGroupSubscription?.cancel();
+    _costDataSubscription?.cancel();
     _userSubscription?.cancel();
     return super.close();
   }

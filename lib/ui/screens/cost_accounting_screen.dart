@@ -172,13 +172,23 @@ Future<dynamic> _deleteCostGroupDialog({required BuildContext context, required 
         child: CustomAlertDialog(
           title: Center(
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('Удалить категорию '),
-                Text(
-                  costsGroup.name,
-                  style: kPurpleTextStyle,
+                const Text(
+                  'Удалить категорию ',
+                  style: TextStyle(fontSize: 16),
                 ),
-                const Text('?'),
+                Flexible(
+                  child: Text(
+                    costsGroup.name,
+                    style: kPurpleTextStyle,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const Text(
+                  '?',
+                  style: TextStyle(fontSize: 16),
+                ),
               ],
             ),
           ),
@@ -212,7 +222,7 @@ class _CostsGroupsList extends StatelessWidget {
               _deleteCostGroupDialog(context: context, costsGroup: state.costsGroups[index]);
             },
             onIconTap: () {
-              Navigator.of(context).pushNamed(Screens.costData, arguments: state.costsGroups[index]);
+              Navigator.of(context).pushNamed(Screens.costData, arguments: state.costsGroups[index].id);
             },
           ),
         );
