@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,7 +13,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       : _authRepository = authRepository,
         super(AuthUnknownState()) {
     on<UserChangedEvent>((event, emit) async {
-      print('AuthBloc: UserChangedEvent');
+      log('AuthBloc: UserChangedEvent');
       if (event.user == null) {
         emit(AuthUnauthenticatedState());
       } else {

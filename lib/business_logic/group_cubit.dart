@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:money_tracker/models/costs_group.dart';
@@ -21,22 +23,28 @@ class GroupCubit extends Cubit<GroupState> {
         ));
 
   void nameChanged(String value) {
-    print('nameChanged $value');
+    log('nameChanged $value');
     emit(state.copyWith(name: value, status: GroupStatus.initial));
   }
 
   void colorChanged(String value) {
-    print('colorChanged $value');
+    log('colorChanged $value');
     emit(state.copyWith(intColor: value, status: GroupStatus.initial));
   }
 
   void resetState() {
-    print('resetState');
-    emit(state.copyWith(name: '', intColor: '', status: GroupStatus.initial, error: ''));
+    log('resetState');
+    emit(const GroupState(
+      name: '',
+      intColor: '',
+      status: GroupStatus.initial,
+      error: '',
+      group: null,
+    ));
   }
 
   Future<void> createGroup() async {
-    print('createGroup');
+    log('createGroup');
     emit(state.copyWith(status: GroupStatus.inProgress));
     try {
       User? user = await _authRepository.getCurrentUser();
@@ -50,13 +58,13 @@ class GroupCubit extends Cubit<GroupState> {
         emit(state.copyWith(status: GroupStatus.success, group: group));
       }
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
       emit(state.copyWith(status: GroupStatus.error, error: e.toString()));
     }
   }
 
   Future<void> deleteGroup(CostsGroup group) async {
-    print('deleteGroup');
+    log('deleteGroup');
     emit(state.copyWith(status: GroupStatus.inProgress));
     try {
       User? user = await _authRepository.getCurrentUser();
@@ -65,7 +73,7 @@ class GroupCubit extends Cubit<GroupState> {
         emit(state.copyWith(status: GroupStatus.success));
       }
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
       emit(state.copyWith(status: GroupStatus.error, error: e.toString()));
     }
   }

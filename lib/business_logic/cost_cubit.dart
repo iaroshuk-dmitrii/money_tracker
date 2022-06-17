@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:money_tracker/models/costs_data.dart';
@@ -22,28 +24,29 @@ class CostCubit extends Cubit<CostState> {
         ));
 
   void costChanged(String value) {
-    print('costChanged $value');
+    log('costChanged $value');
     emit(state.copyWith(cost: double.tryParse(value.replaceAll(',', '.')), status: CostStatus.initial));
   }
 
   void dateChanged(DateTime value) {
-    print('dateChanged $value');
+    log('dateChanged $value');
     emit(state.copyWith(dateTime: value, status: CostStatus.initial));
   }
 
   void resetState() {
-    print('resetState');
-    emit(state.copyWith(
+    log('resetState');
+    emit(CostState(
       id: '',
       cost: 0.0,
       dateTime: DateTime.now(),
       status: CostStatus.initial,
       error: '',
+      costData: null,
     ));
   }
 
   Future<void> createCost({required String groupId}) async {
-    print('createCost');
+    log('createCost');
     emit(state.copyWith(status: CostStatus.inProgress));
     try {
       User? user = await _authRepository.getCurrentUser();
@@ -53,13 +56,13 @@ class CostCubit extends Cubit<CostState> {
         emit(state.copyWith(status: CostStatus.success, costData: costData));
       }
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
       emit(state.copyWith(status: CostStatus.error, error: e.toString()));
     }
   }
 
   Future<void> deleteCost(CostData costData) async {
-    print('deleteCost');
+    log('deleteCost');
     emit(state.copyWith(status: CostStatus.inProgress));
     try {
       User? user = await _authRepository.getCurrentUser();
@@ -68,7 +71,7 @@ class CostCubit extends Cubit<CostState> {
         emit(state.copyWith(status: CostStatus.success));
       }
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
       emit(state.copyWith(status: CostStatus.error, error: e.toString()));
     }
   }

@@ -1,12 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:money_tracker/models/costs_group.dart';
-import 'package:money_tracker/ui/screens/cost_accounting_screen.dart';
 import 'package:money_tracker/ui/screens/cost_data_screen.dart';
 import 'package:money_tracker/ui/screens/loader_screen.dart';
 import 'package:money_tracker/ui/screens/login_screen.dart';
 import 'package:money_tracker/ui/screens/main_tabs_screen.dart';
-import 'package:money_tracker/ui/screens/profile_screen.dart';
-import 'package:money_tracker/ui/screens/test_screen.dart';
 
 abstract class Screens {
   static const loader = '/LoaderScreen';
@@ -21,20 +19,16 @@ class MainNavigation {
 
   final routes = <String, Widget Function(BuildContext)>{
     Screens.loader: (context) {
-      print('Create LoaderScreen');
+      log('Create LoaderScreen');
       return const LoaderScreen();
     },
     Screens.login: (context) {
-      print('Create LoginScreen');
+      log('Create LoginScreen');
       return const LoginScreen();
     },
     Screens.mainTabs: (context) {
-      print('Create MainTabsScreen');
+      log('Create MainTabsScreen');
       return const MainTabsScreen();
-    },
-    Screens.test: (context) {
-      print('Create TestScreen');
-      return const TestScreen();
     },
   };
 

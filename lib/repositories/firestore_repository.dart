@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:money_tracker/models/costs_data.dart';
 
@@ -31,7 +33,7 @@ class FirestoreRepository {
     try {
       await _firebaseFirestore.collection('users').doc(userId).collection('groups').add(group.toMap());
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
       throw Exception(e);
     }
   }
@@ -49,7 +51,7 @@ class FirestoreRepository {
       }
       await batch.commit();
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
       throw Exception(e);
     }
   }
@@ -58,7 +60,7 @@ class FirestoreRepository {
     try {
       await _firebaseFirestore.collection('users').doc(userId).collection('costs').add(costData.toMap());
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
       throw Exception(e);
     }
   }
@@ -67,7 +69,7 @@ class FirestoreRepository {
     try {
       await _firebaseFirestore.collection('users').doc(userId).collection('costs').doc(costData.id).delete();
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
       throw Exception(e);
     }
   }

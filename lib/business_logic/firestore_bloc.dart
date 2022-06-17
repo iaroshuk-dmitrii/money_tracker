@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,7 +26,7 @@ class FirestoreBloc extends Bloc<FirestoreDataEvent, FirestoreState> {
         _authRepository = authRepository,
         super(FirestoreState(costsGroups: [], month: DateTime.now())) {
     on<UserChangedEvent>((event, emit) async {
-      print('FirestoreBloc: DataChangedEvent');
+      log('FirestoreBloc: DataChangedEvent');
       _costGroupSubscription?.cancel();
       _costDataSubscription?.cancel();
       user = event.user;
@@ -46,7 +47,7 @@ class FirestoreBloc extends Bloc<FirestoreDataEvent, FirestoreState> {
     });
 
     on<CostGroupChangedEvent>((event, emit) async {
-      print('FirestoreBloc: CostGroupChangedEvent');
+      log('FirestoreBloc: CostGroupChangedEvent');
       costsGroups.clear();
       List<QueryDocumentSnapshot<Object?>> snapshots = event.snapshot?.docs ?? [];
       for (QueryDocumentSnapshot<Object?> snapshot in snapshots) {
@@ -58,9 +59,9 @@ class FirestoreBloc extends Bloc<FirestoreDataEvent, FirestoreState> {
     });
 
     on<MonthChangedEvent>((event, emit) async {
-      print('FirestoreBloc: MonthChangedEvent');
+      log('FirestoreBloc: MonthChangedEvent');
       selectedMonth = event.dateTime;
-      print(selectedMonth.toString());
+      log(selectedMonth.toString());
       _costDataSubscription?.cancel();
       final currentUser = user;
       if (currentUser != null) {
@@ -76,14 +77,14 @@ class FirestoreBloc extends Bloc<FirestoreDataEvent, FirestoreState> {
     });
 
     on<CostDataChangedEvent>((event, emit) async {
-      print('FirestoreBloc: CostDataChangedEvent, ${event.snapshot?.docs ?? []} ');
+      log('FirestoreBloc: CostDataChangedEvent, ${event.snapshot?.docs ?? []} ');
       costsData.clear();
       List<QueryDocumentSnapshot<Object?>> snapshots = event.snapshot?.docs ?? [];
       for (QueryDocumentSnapshot<Object?> snapshot in snapshots) {
         CostData data = CostData.fromQueryDocumentSnapshot(snapshot);
         costsData.add(data);
       }
-      print('${costsData.length}');
+      log('${costsData.length}');
       _sortDataIntoGroups();
       emit(FirestoreState(costsGroups: costsGroups, month: selectedMonth));
     });

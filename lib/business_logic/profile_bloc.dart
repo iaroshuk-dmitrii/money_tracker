@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,14 +20,14 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         _storageRepository = storageRepository,
         super(ProfileInitialState()) {
     on<ProfileChangedEvent>((event, emit) async {
-      print('ProfileBloc: ProfileChangedEvent');
+      log('ProfileBloc: ProfileChangedEvent');
       emit(ProfileUpdatedState(event.user));
     });
     on<UpdatePhotoEvent>((event, emit) async {
-      print('ProfileBloc: UpdatePhotoEvent');
+      log('ProfileBloc: UpdatePhotoEvent');
       if (_user != null) {
         String? photoURL = await _storageRepository.uploadFile(
-          user: _user!,
+          folderName: 'users/${_user?.uid}/',
           file: event.file,
           newFileName: 'avatar.jpg',
         );
