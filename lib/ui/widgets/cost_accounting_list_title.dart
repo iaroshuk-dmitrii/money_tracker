@@ -23,6 +23,11 @@ class CAListTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      elevation: 5,
       child: ListTile(
         title: Text(title),
         subtitle: Text(subtitle),
@@ -39,11 +44,6 @@ class CAListTitle extends StatelessWidget {
         onTap: onTap,
         onLongPress: onLongPress,
       ),
-      margin: const EdgeInsets.all(15.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
-      elevation: 5,
     );
   }
 }

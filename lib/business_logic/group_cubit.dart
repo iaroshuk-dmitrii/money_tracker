@@ -17,7 +17,7 @@ class GroupCubit extends Cubit<GroupState> {
         _authRepository = authRepository,
         super(const GroupState(
           name: '',
-          intColor: '',
+          intColor: 0,
           status: GroupStatus.initial,
           error: '',
         ));
@@ -29,14 +29,15 @@ class GroupCubit extends Cubit<GroupState> {
 
   void colorChanged(String value) {
     log('colorChanged $value');
-    emit(state.copyWith(intColor: value, status: GroupStatus.initial));
+    int intColor = int.tryParse(value, radix: 16) ?? 0;
+    emit(state.copyWith(intColor: intColor, status: GroupStatus.initial));
   }
 
   void resetState() {
     log('resetState');
     emit(const GroupState(
       name: '',
-      intColor: '',
+      intColor: 0,
       status: GroupStatus.initial,
       error: '',
       group: null,
@@ -51,7 +52,7 @@ class GroupCubit extends Cubit<GroupState> {
       if (user != null) {
         CostsGroup group = CostsGroup(
           name: state.name,
-          color: int.tryParse(state.intColor, radix: 16) ?? 0,
+          color: state.intColor,
           costs: [],
         );
         await _firestoreRepository.addGroup(userId: user.uid, group: group);
@@ -85,7 +86,7 @@ enum GroupStatus { initial, inProgress, success, error }
 //------------------------------
 class GroupState {
   final String name;
-  final String intColor;
+  final int intColor;
   final GroupStatus status;
   final String error;
   final CostsGroup? group;
@@ -94,7 +95,7 @@ class GroupState {
 
   GroupState copyWith({
     String? name,
-    String? intColor,
+    int? intColor,
     GroupStatus? status,
     String? error,
     CostsGroup? group,

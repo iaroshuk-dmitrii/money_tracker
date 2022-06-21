@@ -7,7 +7,6 @@ import 'package:money_tracker/business_logic/image_picker_bloc.dart';
 import 'package:money_tracker/business_logic/login_cubit.dart';
 import 'package:money_tracker/business_logic/profile_bloc.dart';
 import 'package:money_tracker/ui/constants.dart';
-import 'package:money_tracker/ui/navigation.dart';
 import 'package:money_tracker/ui/widgets/purple_text_button.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -19,7 +18,10 @@ class ProfileScreen extends StatelessWidget {
     return Material(
       child: Column(
         children: [
-          AppBar(title: const Center(child: Text('Профиль'))),
+          AppBar(
+            centerTitle: true,
+            title: const Text('Профиль'),
+          ),
           Padding(
             padding: const EdgeInsets.all(25.0),
             child: Column(
@@ -32,24 +34,7 @@ class ProfileScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          BlocProvider.of<ImagePickerBloc>(context).add(ImagePickerSelectedEvent());
-                        },
-                        child: BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
-                          BlocProvider.of<ImagePickerBloc>(context).add(ImagePickerResetEvent());
-                          if (state is AuthAuthenticatedState) {
-                            String? photo = state.user?.photoURL;
-                            return BlocBuilder<ImagePickerBloc, ImagePickerState>(builder: (context, state) {
-                              if (state is ImagePickerSelectedState) {
-                                return _Avatar(photoUrl: photo, photoFile: File(state.image.path));
-                              }
-                              return _Avatar(photoUrl: photo);
-                            });
-                          }
-                          return const _Avatar();
-                        }),
-                      ),
+                      const _AvatarWidget(),
                       const SizedBox(width: 20.0),
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 200),
@@ -64,7 +49,6 @@ class ProfileScreen extends StatelessWidget {
                               }
                               return const SizedBox.shrink();
                             }),
-                            // const SizedBox(height: 13),
                             PurpleTextButton(
                               buttonTitle: 'Выйти',
                               onPressed: () {
@@ -74,7 +58,6 @@ class ProfileScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      // const Expanded(child: SizedBox.shrink()),
                     ],
                   ),
                 ),
@@ -84,6 +67,34 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AvatarWidget extends StatelessWidget {
+  const _AvatarWidget({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        BlocProvider.of<ImagePickerBloc>(context).add(ImagePickerSelectedEvent());
+      },
+      child: BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
+        BlocProvider.of<ImagePickerBloc>(context).add(ImagePickerResetEvent());
+        if (state is AuthAuthenticatedState) {
+          String? photo = state.user?.photoURL;
+          return BlocBuilder<ImagePickerBloc, ImagePickerState>(builder: (context, state) {
+            if (state is ImagePickerSelectedState) {
+              return _Avatar(photoFile: File(state.image.path));
+            }
+            return _Avatar(photoUrl: photo);
+          });
+        }
+        return const _Avatar();
+      }),
     );
   }
 }
@@ -118,19 +129,21 @@ class _Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ImageProvider? _photo;
+    ImageProvider? photo;
+    Widget? child;
     if (photoFile != null) {
-      _photo = FileImage(photoFile!);
+      photo = FileImage(photoFile!);
     } else if (photoUrl != null) {
-      _photo = NetworkImage(photoUrl!);
+      photo = NetworkImage(photoUrl!);
     }
-    //
+    if (photoUrl == null && photoFile == null) {
+      child = const Icon(Icons.photo_camera, color: kDarkGray, size: 35);
+    }
     return CircleAvatar(
       backgroundColor: kLightGray,
       radius: 40,
-      foregroundImage: _photo,
-      child:
-          (photoUrl == null && photoFile == null) ? const Icon(Icons.photo_camera, color: kDarkGray, size: 35) : null,
+      foregroundImage: photo,
+      child: child,
     );
   }
 }

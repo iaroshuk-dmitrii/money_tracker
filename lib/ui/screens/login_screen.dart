@@ -27,41 +27,41 @@ class LoginScreen extends StatelessWidget {
         }
       },
       child: Scaffold(
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 47, horizontal: 25),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 450),
-                child: Column(
-                  children: [
-                    // const Expanded(flex: 2, child: SizedBox.expand()),
-                    Image.asset('assets/images/logo.png'),
-                    const SizedBox(height: 13),
-                    const Text(
-                      'Учёт расходов',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 47, horizontal: 25),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 450),
+                  child: Column(
+                    children: [
+                      Image.asset('assets/images/logo.png'),
+                      const SizedBox(height: 13),
+                      const Text(
+                        'Учёт расходов',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Ваша история расходов',
-                      style: TextStyle(fontSize: 15),
-                    ),
-                    const Text(
-                      'всегда под рукой',
-                      style: TextStyle(fontSize: 15),
-                    ),
-                    const SizedBox(height: 40),
-                    const _EmailInput(),
-                    const _PasswordInput(),
-                    const SizedBox(height: 40),
-                    const _LoginButton(),
-                    // const Expanded(flex: 7, child: SizedBox.shrink()),
-                    const _SwitchSign(),
-                  ],
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Ваша история расходов',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                      const Text(
+                        'всегда под рукой',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                      const SizedBox(height: 40),
+                      const _EmailInput(),
+                      const _PasswordInput(),
+                      const SizedBox(height: 40),
+                      const _LoginButton(),
+                      const _SwitchSign(),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -144,10 +144,7 @@ class _SwitchSign extends StatelessWidget {
             style: const TextStyle(fontSize: 15),
           ),
           TextButton(
-            child: Text(
-              buttonText,
-              style: const TextStyle(color: kPurpleColor, fontSize: 15),
-            ),
+            child: Text(buttonText, style: kPurpleTextStyle),
             onPressed: () {
               state.loginType == LoginType.login
                   ? context.read<LoginCubit>().switchToSignUp()

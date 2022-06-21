@@ -5,6 +5,5 @@ abstract class AppTheme {
   static ThemeData light = ThemeData(
     primarySwatch: kMaterialPurpleColor,
     scaffoldBackgroundColor: Colors.white,
-    fontFamily: 'SanFrancisco',
   );
 }

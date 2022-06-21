@@ -40,15 +40,14 @@ class CostAccountingScreen extends StatelessWidget {
 
 PreferredSizeWidget _monthPickerAppBar(BuildContext context) {
   return AppBar(
+      centerTitle: true,
       title: TextButton(
-        child: Center(
-          child: BlocBuilder<FirestoreBloc, FirestoreState>(builder: (context, state) {
-            return Text(
-              '${StringUtils.capitalize(DateFormat('MMMM').format(state.month))} ${DateFormat('yyyy').format(state.month)}',
-              style: const TextStyle(color: Colors.white, fontSize: 24),
-            );
-          }),
-        ),
+        child: BlocBuilder<FirestoreBloc, FirestoreState>(builder: (context, state) {
+          return Text(
+            '${StringUtils.capitalize(DateFormat('MMMM').format(state.month))} ${DateFormat('yyyy').format(state.month)}',
+            style: const TextStyle(color: Colors.white, fontSize: 24),
+          );
+        }),
         onPressed: () async {
           DateTime? pickedMonth = await _selectMonth(context);
           if (pickedMonth != null) {
@@ -139,7 +138,16 @@ Future<dynamic> _createCostsGroupDialog(BuildContext context) async {
               TextField(
                 keyboardType: TextInputType.text,
                 textAlign: TextAlign.left,
-                decoration: const InputDecoration(labelText: 'Цвет'),
+                decoration: InputDecoration(
+                  labelText: 'Цвет',
+                  suffixIcon: BlocBuilder<GroupCubit, GroupState>(builder: (context, state) {
+                    return Icon(
+                      Icons.palette_outlined,
+                      color: Color(0xFF000000 + state.intColor),
+                      size: 30,
+                    );
+                  }),
+                ),
                 onChanged: (value) => context.read<GroupCubit>().colorChanged(value),
                 maxLength: 6,
                 inputFormatters: <TextInputFormatter>[
@@ -171,25 +179,15 @@ Future<dynamic> _deleteCostGroupDialog({required BuildContext context, required 
         },
         child: CustomAlertDialog(
           title: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Удалить категорию ',
-                  style: TextStyle(fontSize: 16),
-                ),
-                Flexible(
-                  child: Text(
-                    costsGroup.name,
-                    style: kPurpleTextStyle,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const Text(
-                  '?',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ],
+            child: RichText(
+              text: TextSpan(
+                text: 'Удалить категорию ',
+                style: const TextStyle(fontSize: 16, color: Colors.black),
+                children: [
+                  TextSpan(text: costsGroup.name, style: kPurpleTextStyle),
+                  const TextSpan(text: '?'),
+                ],
+              ),
             ),
           ),
           onConfirm: () => context.read<GroupCubit>().deleteGroup(costsGroup),
@@ -212,7 +210,7 @@ class _CostsGroupsList extends StatelessWidget {
           itemBuilder: (context, index) => CAListTitle(
             title: state.costsGroups[index].name,
             subtitle: state.costsGroups[index].totalCosts != 0.0
-                ? 'Всего: ' + state.costsGroups[index].totalCosts.toString()
+                ? 'Всего: ${state.costsGroups[index].totalCosts}'
                 : 'Добавить расход',
             iconColor: Color(0xFF000000 + state.costsGroups[index].color),
             onTap: () {
@@ -285,9 +283,6 @@ Future<dynamic> _createCostsDialog({required BuildContext context, required Cost
                     labelText: 'Введите сумму',
                     labelStyle: TextStyle(color: kPurpleColor),
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: kPurpleColor,
-                      ),
                       borderRadius: BorderRadius.all(Radius.circular(15.0)),
                     ),
                     focusedBorder: OutlineInputBorder(

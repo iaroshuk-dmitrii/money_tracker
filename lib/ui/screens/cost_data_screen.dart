@@ -7,6 +7,7 @@ import 'package:money_tracker/models/costs_data.dart';
 import 'package:money_tracker/models/costs_group.dart';
 import 'package:money_tracker/ui/widgets/cost_accounting_list_title.dart';
 import 'package:money_tracker/ui/widgets/custom_alert_dialog.dart';
+import 'package:money_tracker/utils/text_color_for_background.dart';
 
 class CostDataScreen extends StatelessWidget {
   final String groupId;
@@ -19,7 +20,11 @@ class CostDataScreen extends StatelessWidget {
       final CostsGroup costsGroup = state.costsGroups.firstWhere((element) => element.id == groupId);
       return Scaffold(
         appBar: AppBar(
-          title: Center(child: Text(costsGroup.name)),
+          centerTitle: true,
+          title: Text(
+            costsGroup.name,
+            style: TextStyle(color: getTextColorForBackground(Color(0XFF000000 + costsGroup.color))),
+          ),
           backgroundColor: Color(0XFF000000 + costsGroup.color),
         ),
         body: ListView.builder(

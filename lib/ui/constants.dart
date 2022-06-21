@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 const Color kPurpleColor = Color(0xFF9053EB);
+const Color kLightGray = Color(0xFFD0D0D0);
+const Color kDarkGray = Color(0xFFABABAB);
 
 const Map<int, Color> kMaterialPurpleColorSwatch = {
   50: Color.fromRGBO(0x90, 0x53, 0xEB, .1),
@@ -16,9 +18,4 @@ const Map<int, Color> kMaterialPurpleColorSwatch = {
 };
 const MaterialColor kMaterialPurpleColor = MaterialColor(0xFF9053EB, kMaterialPurpleColorSwatch);
 
-const TextStyle kPurpleButtonTextStyle = TextStyle(color: Colors.white);
-
 const TextStyle kPurpleTextStyle = TextStyle(color: kPurpleColor);
-
-const Color kLightGray = Color(0xFFD0D0D0);
-const Color kDarkGray = Color(0xFFABABAB);

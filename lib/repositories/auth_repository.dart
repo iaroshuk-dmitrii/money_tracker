@@ -44,9 +44,7 @@ class AuthRepository {
       }
     } catch (e) {
       throw AuthException('Ошибка, повторите позже.');
-      // throw Exception(e.toString());
     }
-    return null;
   }
 
   Future<User?> getCurrentUser() async {
